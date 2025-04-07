@@ -39,3 +39,4 @@ tornado==6.4.2
 typing_extensions==4.13.0
 tzdata==2025.2
 urllib3==2.3.0
+nltk~=3.9.1

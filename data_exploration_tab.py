@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import numpy as np
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import HDBSCAN
 from sklearn.preprocessing import StandardScaler
 
 initial_data = pd.read_csv("initial_data.csv")
@@ -12,7 +11,7 @@ def data_exploration(tab):
     st.dataframe(initial_data)
 
     # Limit data to head to prevent performance issues
-    limited_data = initial_data.head(30000)
+    limited_data = initial_data.head(50000)
 
     # Extract coordinates for clustering
     map_data = pd.DataFrame()
@@ -28,7 +27,7 @@ def data_exploration(tab):
             eps = st.slider("Epsilon (neighborhood size)",
                             min_value=0.001,
                             max_value=0.5,
-                            value=0.3,
+                            value=0.02,
                             step=0.001,
                             help="Maximum distance between two points to be considered neighbors")
 
@@ -36,7 +35,7 @@ def data_exploration(tab):
             min_samples = st.slider("Minimum Samples",
                                     min_value=2,
                                     max_value=300,
-                                    value=5,
+                                    value=120,
                                     step=1,
                                     help="Minimum number of points to form a dense region")
 
@@ -53,7 +52,11 @@ def data_exploration(tab):
         coords_scaled = StandardScaler().fit_transform(coords)
 
         # Apply DBSCAN with user-selected parameters
-        dbscan = DBSCAN(eps=eps, min_samples=min_samples, algorithm=algorithm)
+        dbscan = HDBSCAN(
+            cluster_selection_epsilon=eps,
+            min_samples=min_samples,
+            algorithm=algorithm
+        )
         map_data['cluster'] = dbscan.fit_predict(coords_scaled)
 
         # Count clusters and noise points
