@@ -4,11 +4,25 @@ from nltk.stem import WordNetLemmatizer
 
 import pandas as pd
 
-stop_words = set(
-    stopwords.words('english')
-).update(
-    set(stopwords.words('french'))
+stop_words = stopwords.words('english')
+stop_words.extend(stopwords.words('french'))
+stop_words.extend(stopwords.words('italian'))
+stop_words.extend(stopwords.words('spanish'))
+stop_words.extend(stopwords.words('portuguese'))
+stop_words.extend(stopwords.words('german'))
+stop_words.extend(
+    [
+        "france",
+        "lyon",
+        "69",
+        "rhônealpes",
+        "french",
+        "français",
+        "ville",
+    ]
 )
+
+
 lemmatizer = WordNetLemmatizer()
 
 
@@ -33,13 +47,11 @@ def clean_and_lemmatize(text):
 
 if __name__ == '__main__':
     initial_data = pd.read_csv("initial_data.csv")
-
-
-
-    initial_data = initial_data.head(10000)
-    initial_data['text_data'] = initial_data[' title'].fillna('') + " " + initial_data[' tags'].fillna('')
+    initial_data['text_data'] = initial_data[' title'].fillna('')
     initial_data['cleaned_text'] = initial_data['text_data'].apply(clean_and_lemmatize)
 
-    print(initial_data)
+    initial_data.to_csv("lemmatized_data.csv")
+
+
 
 

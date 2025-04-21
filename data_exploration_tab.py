@@ -1,17 +1,19 @@
 import streamlit as st
+import numpy as np
 import pandas as pd
 import plotly.express as px
 from sklearn.cluster import HDBSCAN
 from sklearn.preprocessing import StandardScaler
+from sklearn.feature_extraction.text import TfidfVectorizer
+from find_cluster_keywords import get_clusters_keywords
 
-initial_data = pd.read_csv("initial_data.csv")
+
+data = pd.read_csv("lemmatized_data.csv")
 
 
 def data_exploration(tab):
-    st.dataframe(initial_data)
-
     # Limit data to head to prevent performance issues
-    limited_data = initial_data.head(50000)
+    limited_data = data.head(50000)
 
     # Extract coordinates for clustering
     map_data = pd.DataFrame()
@@ -58,6 +60,11 @@ def data_exploration(tab):
             algorithm=algorithm
         )
         map_data['cluster'] = dbscan.fit_predict(coords_scaled)
+
+        data['cluster'] = map_data['cluster']
+        cluster_keywords_df = get_clusters_keywords(data)
+
+        st.dataframe(cluster_keywords_df)
 
         # Count clusters and noise points
         n_clusters = len(set(map_data['cluster'])) - (1 if -1 in map_data['cluster'] else 0)
