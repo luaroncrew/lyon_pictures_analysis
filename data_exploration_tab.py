@@ -7,7 +7,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 from find_cluster_keywords import get_clusters_keywords
 
-
 data = pd.read_csv("lemmatized_data.csv")
 
 
@@ -53,7 +52,7 @@ def data_exploration(tab):
         coords = map_data[['lat', 'lon']].values
         coords_scaled = StandardScaler().fit_transform(coords)
 
-        # Apply DBSCAN with user-selected parameters
+        # Apply HDBSCAN with user-selected parameters
         dbscan = HDBSCAN(
             cluster_selection_epsilon=eps,
             min_samples=min_samples,
@@ -84,13 +83,41 @@ def data_exploration(tab):
         # Convert cluster numbers to colors
         map_data['color'] = map_data['cluster'].map(color_map)
 
-        # Display map with cluster colors
-        st.subheader("Geographical Clustering")
+        # No need to calculate centroids anymore
+
+        # Display map with all clusters
+        st.subheader("All Clusters Map")
         st.map(
             data=map_data,
             use_container_width=True,
             color='color',
             size=2
+        )
+
+        # Add a filter to display a single cluster
+        st.subheader("Single Cluster View")
+
+        # Get sorted list of unique cluster IDs
+        cluster_ids = sorted(map_data['cluster'].unique())
+
+        # Create a selectbox for cluster selection
+        selected_cluster = st.selectbox(
+            "Select a cluster to display",
+            options=cluster_ids,
+            format_func=lambda x: f"Cluster {x}" if x != -1 else "Noise Points (Cluster -1)",
+            help="Choose a specific cluster to display on the map"
+        )
+
+        # Filter data for the selected cluster
+        filtered_data = map_data[map_data['cluster'] == selected_cluster].copy()
+
+        # Show the filtered cluster map
+        st.text(f"Showing {len(filtered_data)} points from Cluster {selected_cluster}")
+        st.map(
+            data=filtered_data,
+            use_container_width=True,
+            color='color',
+            size=5  # Larger points for better visibility
         )
 
         # Optional: Show breakdown of clusters in a bar chart
