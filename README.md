@@ -17,6 +17,8 @@ python -m venv venv && source venv/Scripts/activate
 pip install -r requirements.txt
 ```
 
+please run the pre-processing before running the app
+
 then from the root
 ```bash
 streamlit run app.py
